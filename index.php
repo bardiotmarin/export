@@ -10,8 +10,8 @@
 
 use PHPExcel;
 use PHPExcel_IOFactory;
-// Ajouter un filtre pour remplacer l'email de commande par un fichier Excel
 
+// Ajouter un filtre pour remplacer l'email de commande par un fichier Excel
 add_filter( 'woocommerce_email_attachments', 'replace_order_email_with_excel', 10, 3 );
 
 function replace_order_email_with_excel( $attachments, $email_id, $order ) {
@@ -22,25 +22,24 @@ function replace_order_email_with_excel( $attachments, $email_id, $order ) {
   return $attachments;
 }
 
-function generer_excel_a_partir_de_commande( $commande ) {
-    // Répertoire de sauvegarde
-    $dir = './backup/';
-  
-    // Vérifier si le répertoire existe et est accessible en écriture
-    if (!is_dir($dir)) {
-      // Répertoire n'existe pas, le créer
-      if (!mkdir($dir, 0777, true)) {
-        trigger_error('Impossible de créer le répertoire de sauvegarde', E_USER_WARNING);
-        return false;
-      }
-    }
-    if (!is_writable($dir)) {
-      // Répertoire n'est pas accessible en écriture
-      trigger_error('Répertoire de sauvegarde non accessible en écriture', E_USER_WARNING);
+function generate_excel_from_order( $order ) {
+  // Répertoire de sauvegarde
+  $dir = './backup/';
+
+  // Vérifier si le répertoire existe et est accessible en écriture
+  if (!is_dir($dir)) {
+    // Répertoire n'existe pas, le créer
+    if (!mkdir($dir, 0777, true)) {
+      trigger_error('Impossible de créer le répertoire de sauvegarde', E_USER_WARNING);
       return false;
     }
+  }
+  if (!is_writable($dir)) {
+    // Répertoire n'est pas accessible en écriture
+    trigger_error('Répertoire de sauvegarde non accessible en écriture', E_USER_WARNING);
+    return false;
+  }
 
-function generate_excel_from_order( $order ) {
   $locale = get_locale();
   switch ( $locale ) {
     case 'fr_FR':
@@ -65,7 +64,7 @@ function generate_excel_from_order( $order ) {
   $sheet->setCellValue( 'A1', $order->get_order_number() );
 
   // Set the order date
-  $sheet->setCellValue( 'B1', $order->get_date_created()->format( 'Y-m-d' ) );
+  $sheet->setCellValue( 'B1', $order->get_date_created()->format( 'Y-m-d' )
 
   // Set the customer information
   $sheet->setCellValue( 'A3', $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() );
