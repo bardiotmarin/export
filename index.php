@@ -82,7 +82,7 @@ function generate_excel_from_order( $order ) {
     $row++;
   }
   // Save the generated Excel file
-  $file_path = $dir . 'order-' . $order->get_order_number() . '.xlsx';
+  $file_path = $dir . $order->get_billing_first_name() . '_' . $order->get_billing_last_name() . '_order-' . $order->get_order_number() . '.xlsx';
   $writer = PHPExcel_IOFactory::createWriter( $excel, 'Excel2007' );
   
   try {
