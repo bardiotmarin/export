@@ -64,7 +64,7 @@ function generate_excel_from_order( $order ) {
   $sheet->setCellValue( 'A1', $order->get_order_number() );
 
   // Set the order date
-  $sheet->setCellValue( 'B1', $order->get_date_created()->format( 'Y-m-d' )
+  $sheet->setCellValue( 'B1', $order->get_date_created()->format( 'Y-m-d' ) );
 
   // Set the customer information
   $sheet->setCellValue( 'A3', $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() );
