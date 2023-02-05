@@ -10,6 +10,7 @@
 
 use PHPExcel;
 use PHPExcel_IOFactory;
+// Ajouter un filtre pour remplacer l'email de commande par un fichier Excel
 
 add_filter( 'woocommerce_email_attachments', 'replace_order_email_with_excel', 10, 3 );
 
@@ -20,6 +21,24 @@ function replace_order_email_with_excel( $attachments, $email_id, $order ) {
   }
   return $attachments;
 }
+
+function generer_excel_a_partir_de_commande( $commande ) {
+    // Répertoire de sauvegarde
+    $dir = './backup/';
+  
+    // Vérifier si le répertoire existe et est accessible en écriture
+    if (!is_dir($dir)) {
+      // Répertoire n'existe pas, le créer
+      if (!mkdir($dir, 0777, true)) {
+        trigger_error('Impossible de créer le répertoire de sauvegarde', E_USER_WARNING);
+        return false;
+      }
+    }
+    if (!is_writable($dir)) {
+      // Répertoire n'est pas accessible en écriture
+      trigger_error('Répertoire de sauvegarde non accessible en écriture', E_USER_WARNING);
+      return false;
+    }
 
 function generate_excel_from_order( $order ) {
   $locale = get_locale();
@@ -59,12 +78,21 @@ function generate_excel_from_order( $order ) {
     $sheet->setCellValue( 'A' . $row, $item->get_name() );
     $sheet->setCellValue( 'B' . $row, $item->get_quantity() );
     $sheet->setCellValue( 'C' . $row, $item->get_total() );
+    // Add the serial number
+    $sheet->setCellValue( 'D' . $row, get_serial_number( $item ) );
     $row++;
   }
-
   // Save the generated Excel file
-  $file_path = plugin_dir_path( __FILE__ ) . 'order-' . $order->get_order_number() . '.xlsx';
-  PHPExcel_IOFactory::createWriter( $excel, 'Excel2007' )->save( $file_path );
+  $file_path = $dir . 'order-' . $order->get_order_number() . '.xlsx';
+  $writer = PHPExcel_IOFactory::createWriter( $excel, 'Excel2007' );
+  
+  try {
+    $writer->save( $file_path );
+  } catch (Exception $e) {
+    // Handle error: unable to save the file
+    trigger_error('Unable to save file: ' . $e->getMessage(), E_USER_WARNING);
+    return false;
+  }
 
   return $file_path;
 }
